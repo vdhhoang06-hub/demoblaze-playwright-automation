@@ -1,0 +1,16 @@
+{
+  "login": {
+    "validUser": {
+      "username": "demoblaze_qa_master",
+      "password": "Password123!"
+    },
+    "invalidUser": {
+      "username": "wrong_user_xyz_999",
+      "password": "wrong_password"
+    }
+  },
+  "messages": {
+    "loginSuccess": "Welcome demoblaze_qa_master",
+    "loginFail": "User does not exist."
+  }
+}
