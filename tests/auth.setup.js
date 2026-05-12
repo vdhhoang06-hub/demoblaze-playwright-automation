@@ -2,39 +2,39 @@
 const { test, expect } = require('@playwright/test');
 const LoginPage = require('../pages/loginPage');
 const SignupPage = require('../pages/signupPage');
-// const testData = require('../data/testData.json'); // Không cần dùng đến vì đã dùng random
+// const testData = require('../data/testData.json'); // Not needed as a random user is generated
 const { generateRandomUser } = require('../utils/helpers');
 
 const authFile = 'playwright/.auth/user.json';
 
-test('Khởi tạo state: Tạo User và Đăng nhập UI 1 lần duy nhất', async ({ page }) => {
+test('Initialize state: Create User and perform UI Login exactly once', async ({ page }) => {
   const dynamicUser = generateRandomUser();
   const signupPage = new SignupPage(page);
   
   await signupPage.navigate('/');
   
-  // --- BƯỚC 1: SIGNUP ---
+  // --- STEP 1: SIGNUP ---
   await signupPage.openSignupModal();
   
-  // Tuyệt chiêu xử lý Alert không dùng waitForTimeout
-  // Lắng nghe Alert và Click Đăng ký chạy song song
+  // Enterprise best practice: Handle Alert without waitForTimeout
+  // Listen for the Alert and click Sign up concurrently
   await Promise.all([
-    signupPage.acceptAlertAndGetText(), // Hàm này sẽ tự động chờ Alert hiện ra rồi mới pass
+    signupPage.acceptAlertAndGetText(), // This automatically waits for the Alert to appear then resolves
     signupPage.performSignup(dynamicUser.username, dynamicUser.password)
   ]);
   
-  // --- BƯỚC 2: LOGIN ---
+  // --- STEP 2: LOGIN ---
   const loginPage = new LoginPage(page);
   await loginPage.openLoginModal();
   
-  // Bỏ waitForTimeout, dùng Playwright locator auto-wait (Chờ đến khi chữ Welcome xuất hiện)
+  // Skip waitForTimeout, leverage Playwright's locator auto-wait (Wait until Welcome text appears)
   await loginPage.performLogin(dynamicUser.username, dynamicUser.password);
 
-  // Thay vì dùng hàm getWelcomeMessage() lấy text rồi so sánh tĩnh,
-  // Ta ném thẳng cái Locator vào hàm expect() để Playwright tự động chờ (poll) 
-  // cho đến khi UI render xong chữ Welcome. Mất 0.1s hay 5s nó đều xử lý được!
+  // Instead of fetching text via getWelcomeMessage() and doing a static assertion,
+  // we pass the Locator directly into expect(), allowing Playwright to auto-wait (poll)
+  // until the Welcome text is rendered into the UI. It resolves immediately whether it takes 0.1s or 5s!
   await expect(loginPage.nameDisplay).toContainText(dynamicUser.username);
 
-  // --- BƯỚC 3: LƯU STATE ---
+  // --- STEP 3: SAVE STATE ---
   await page.context().storageState({ path: authFile });
 });

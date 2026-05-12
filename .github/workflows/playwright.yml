@@ -6,14 +6,14 @@ on:
   pull_request:
     branches: [ main, master ]
   
-  # 1. KÍCH HOẠT CHẠY THỦ CÔNG (Tính năng cực kỳ hữu ích)
-  # Cho phép em vào tab Actions trên GitHub và bấm nút "Run workflow" bất cứ lúc nào
+  # 1. MANUAL TRIGGER (Highly useful feature)
+  # Allows triggering the workflow manually via the "Run workflow" button in the GitHub Actions tab at any time
   workflow_dispatch: 
   
-  # 2. KÍCH HOẠT CHẠY ĐỊNH KỲ (Cron Job)
+  # 2. SCHEDULED TRIGGER (Cron Job)
   # schedule:
-  #   # Cú pháp Cron: phút, giờ, ngày của tháng, tháng, ngày của tuần
-  #   # '*/3 * * * *' nghĩa là chạy mỗi 3 phút
+  #   # Cron syntax: minute, hour, day of month, month, day of week
+  #   # '*/3 * * * *' means running every 3 minutes
   #   - cron: '*/3 * * * *'
 
 jobs:
@@ -42,5 +42,5 @@ jobs:
       with:
         name: playwright-report
         path: playwright-report/
-        # Sư phụ giữ nguyên 30 ngày theo cấu hình gốc của em
+        # Retain the report for 30 days
         retention-days: 30

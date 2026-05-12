@@ -2,9 +2,9 @@
 
 class BasePage {
   /**
-   * Khởi tạo BasePage
-   * Dùng JSDoc (import type) ở đây để VSCode hiểu biến 'page' là của Playwright,
-   * từ đó tự động gợi ý code (IntelliSense) cực kỳ tiện lợi cho học trò.
+   * Initializes BasePage
+   * Using JSDoc (import type) here enables Playwright IntelliSense for the 'page' variable,
+   * significantly enhancing code completion and developer experience.
    * * @param {import('@playwright/test').Page} page
    */
   constructor(page) {
@@ -12,37 +12,37 @@ class BasePage {
   }
 
   /**
-   * Hàm điều hướng chung
-   * @param {string} path - Đường dẫn tương đối (Ví dụ: '/', '/cart.html')
+   * Generic navigation function
+   * @param {string} path - Relative path (e.g., '/', '/cart.html')
    */
   async navigate(path) {
     await this.page.goto(path);
-    // Demoblaze đôi khi load data API hơi chậm. 
-    // Chúng ta có thể dùng domcontentloaded thay vì networkidle để tránh timeout khi có script chạy ngầm.
+    // Demoblaze API data loading can be occasionally slow.
+    // We use domcontentloaded instead of networkidle to avoid timeouts caused by background scripts.
     await this.page.waitForLoadState('domcontentloaded');
   }
 
   /**
-   * BÍ KÍP ĐẶC TRỊ DEMOBLAZE: Xử lý Dialog (Alert/Confirm)
-   * Hàm này sẽ lắng nghe sự kiện alert hiện lên, lấy ra câu thông báo, sau đó bấm OK.
-   * Rất cần thiết khi test luồng Đăng ký / Đăng nhập / Thêm vào giỏ hàng trên trang này.
-   * * @returns {Promise<string>} - Trả về nội dung text của Alert để làm Assertions
+   * DEMOBLAZE SPECIFIC FIX: Handle Dialogs (Alert/Confirm)
+   * This function listens for an alert event, extracts the message, and accepts it.
+   * Essential for testing Signup / Login / Add to Cart workflows on this site.
+   * * @returns {Promise<string>} - Returns the alert text content for assertions
    */
   async acceptAlertAndGetText() {
     return new Promise((resolve) => {
-      // Dùng once thay vì on để event listener chỉ kích hoạt 1 lần cho hành động tiếp theo
+      // Use 'once' instead of 'on' ensuring the event listener is triggered only once for the subsequent action
       this.page.once('dialog', async (dialog) => {
-        const message = dialog.message(); // Lấy text (VD: "Sign up successful")
-        await dialog.accept();            // Bấm nút OK trên alert
-        resolve(message);                 // Trả text về cho test script
+        const message = dialog.message(); // Extract text (e.g., "Sign up successful")
+        await dialog.accept();            // Click OK button on the alert
+        resolve(message);                 // Return text to the test script
       });
     });
   }
 
   /**
-   * Wrapper cho hành động Click
-   * Dù Playwright có auto-wait, nhưng viết thế này giúp ta dễ dàng thêm Try/Catch 
-   * hoặc custom log report sau này nếu dự án phình to.
+   * Wrapper for Click action
+   * Although Playwright has auto-wait, this structure allows easily adding Try/Catch blocks
+   * or custom custom logs later as the project scales.
    * * @param {import('@playwright/test').Locator} locator 
    */
   async clickElement(locator) {
@@ -51,28 +51,28 @@ class BasePage {
   }
 
   /**
-   * Wrapper cho hành động Nhập text (Fill)
+   * Wrapper for Fill text action
    * @param {import('@playwright/test').Locator} locator 
    * @param {string} text 
    */
   async fillText(locator, text) {
     await locator.waitFor({ state: 'visible' });
-    // clear data cũ trước khi điền data mới để đảm bảo an toàn
+    // Clear old data before proceeding to guarantee stability
     await locator.clear(); 
     await locator.fill(text);
   }
 
   /**
-   * Hàm lấy text an toàn
+   * Safe text retrieval function
    * @param {import('@playwright/test').Locator} locator 
    * @returns {Promise<string>}
    */
   async getText(locator) {
     await locator.waitFor({ state: 'visible' });
-    // innerText() lấy text hiển thị trên UI, sạch hơn textContent()
+    // innerText() fetches the visible UI text, structurally cleaner than textContent()
     return await locator.innerText(); 
   }
 }
 
-// Bắt buộc phải export ra để các class con (như LoginPage) có thể kế thừa
+// Mandatory export to allow inheritance by child classes (e.g., LoginPage)
 module.exports = BasePage;
