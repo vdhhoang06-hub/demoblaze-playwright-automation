@@ -11,10 +11,10 @@ on:
   workflow_dispatch: 
   
   # 2. KÍCH HOẠT CHẠY ĐỊNH KỲ (Cron Job)
-  schedule:
-    # Cú pháp Cron: phút, giờ, ngày của tháng, tháng, ngày của tuần
-    # '*/3 * * * *' nghĩa là chạy mỗi 3 phút
-    - cron: '*/3 * * * *'
+  # schedule:
+  #   # Cú pháp Cron: phút, giờ, ngày của tháng, tháng, ngày của tuần
+  #   # '*/3 * * * *' nghĩa là chạy mỗi 3 phút
+  #   - cron: '*/3 * * * *'
 
 jobs:
   test:
